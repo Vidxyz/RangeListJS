@@ -10,14 +10,16 @@ Simple Javascript data-structure that stores the contents of various ranges
  API usage
  --
  1. Instantiate: 
+ ```
     var r = require('./solution');
     var rl = r.rangeList();
+ ```
  
  2. add(range) - expects an array of two integers signifying the lower and upper bounds of the range to add 
-    example:- rl.add([-1,6])
+    example:- `rl.add([-1,6])`
  
  3. remove(range) - expects an array of two integers signifying the lower and upper bounds of the range to remove 
-    example:- rl.remove([2,9])
+    example:- `rl.remove([2,9])`
    
  4. print() - prints existing ranges as defined previously
-    example:- rl.print();
+    example:- `rl.print();`
