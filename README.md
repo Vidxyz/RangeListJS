@@ -11,7 +11,7 @@ Simple Javascript data-structure that stores the contents of various ranges
  --
  1. Instantiate: 
  ```
-    var r = require('./solution');
+    var r = require('./rangelist');
     var rl = r.rangeList();
  ```
  
