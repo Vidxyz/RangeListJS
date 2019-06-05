@@ -76,3 +76,7 @@ rl.print();
 rl.add([-3,-1])
 rl.print();
 // Should display [-4,-1) [20,24)
+
+rl.remove([22,29])
+rl.print();
+// Should display [-4,-1) [20,22)
