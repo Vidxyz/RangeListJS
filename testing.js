@@ -1,4 +1,4 @@
-var test = require('./solution');
+var test = require('./rangelist');
 
 console.log('Run starting')
 
