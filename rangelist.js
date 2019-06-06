@@ -12,23 +12,27 @@ class RangeList {
   /**
    * Returns +1 if [lower, upper] is strictly to the right of the given range
    * Returns -1 if [lower, upper] is strictly to the left of the given range
-   * Returns  0 if [lower, upper] is contained/overlapped in the given range
+   * Returns  0 if [lower, upper] is contained/overlapped in the given 
+   * Ideally, I would do this via use of an 'enum' as available in Java, unsure of whether JS has something similar
    * @param {Integer} lower, {Integer} upper - Lower and Upper bounds 
    */
   getDirection(lower, upper, range) {
     // This is the case of full consumption, in which case you have to do nothing really
     // In this case, incoming [lower, upper] is ALREADY FULLY captured by existing range
     if(lower > range[0] && upper < range[1]) {
-      return 2;
+      return 0;
     }
     else if(lower > range[1]) {
-      return 1;
+      return 2;
     }
     else if(upper < range[0]) {
-      return -1;
+      return -2;
     }
-    else {
-      return 0;
+    else if(lower <= range[1] && upper > range[1]){
+      return 1;
+    }
+    else if(lower < range[0] && upper >= range[0]) {
+      return -1;
     }
   }
   
@@ -81,28 +85,32 @@ class RangeList {
     
     
     var directionList = [];
+
     for(var i=0; i<this.listOfNumbers.length; i++) {
       directionList.push(this.getDirection(incomingLowerBound, incomingUpperBound, this.listOfNumbers[i]))
     }
     
+
+    console.log(directionList);
+
     // Special case for adding bounds at the beginning/end of list
-    if(directionList[0] == -1) {
+    if(directionList[0] == -2) {
       this.listOfNumbers.unshift(range);
       return;
     }
 
-    if(directionList[directionList.length-1] == 1) {
+    if(directionList[directionList.length-1] == 2) {
       this.listOfNumbers.push(range);
       return;
     }
 
     /* 
     ** Case 1, where incoming bounds form its own unique interval in between
-    ** DirectionList will look like this for this case [1, 1, 1, -1], or [1, -1, -1, -1]
+    ** DirectionList will look like this for this case [2,2,2,-2], or [2,-2,-2,-2]
     */
     for(var i=0; i<directionList.length-1; i++) {
       // This means that the new range is between these two ranges, fully internal
-      if(directionList[i] == 1 && directionList[i+1] == -1) {
+      if(directionList[i] == 2 && directionList[i+1] == -2) {
         this.listOfNumbers.splice(i+1, 0, range);
         return;
       }
@@ -110,7 +118,7 @@ class RangeList {
 
     /*
     ** Now we will address the case where intervals overlap, and see what can be done with this
-    ** IF intervals overlap, directionList will look something like this [1, 1, 0, 0, -1]
+    ** IF intervals overlap, directionList will look something like this [2, 2, 1, -1, -2]
     ** This signifies that our incoming bounds overlap with 2 existing intervals
     ** At this point, we are guaranteed to have some 0s, else it would have been satisfied by the case above
     */
@@ -118,23 +126,27 @@ class RangeList {
     var upperIntersectionBoundIndex = -1;
     var hasLowerIntersectingBoundBeenFound = false;
 
+    // Must delete those entries that have 0 direction
     for(var i=0; i<directionList.length; i++) {
 
-      if(!hasLowerIntersectingBoundBeenFound) {
-        if(directionList[i] == 0) {
-          lowerIntersectingBoundIndex = i;
-          hasLowerIntersectingBoundBeenFound = true;
-        }
+      if(directionList[i] == 0 ) {
+        this.listOfNumbers.splice(i,1);
       }
-      else {
-        if(directionList[i] != 0) {
-          upperIntersectionBoundIndex = i-1;
-          break;
-        }
-      }
+
     }
 
-    // This means there was no '0' in the directionList
+    for(var i=0; i<directionList.length; i++) {
+
+      if(directionList[i] == 1) {
+        lowerIntersectingBoundIndex = i;
+      }
+      if(directionList[i] == -1) {
+        upperIntersectionBoundIndex = i;
+      }
+
+    }
+
+    // This means there was no '-1' in the directionList
     // This must mean that the inbound interval is ALREADY captured by existing intervals!
     if(lowerIntersectingBoundIndex == -1) {
       return;
@@ -143,11 +155,8 @@ class RangeList {
     // If we didn't find the upper bound after going through the whole array, then it means that
     // the upper bound is the last "bounds" itself!
     if(upperIntersectionBoundIndex == -1) {
-      upperIntersectionBoundIndex = directionList.length - 1;
+      upperIntersectionBoundIndex = lowerIntersectingBoundIndex;
     }
-
-    console.log(`lowerIntersectingBoundIndex=${lowerIntersectingBoundIndex} and upperIntersectionBoundIndex=${upperIntersectionBoundIndex}`);
-
 
     var newLowerBound, newUpperBound;
     newLowerBound = Math.min(incomingLowerBound, this.listOfNumbers[lowerIntersectingBoundIndex][0]);
@@ -161,7 +170,7 @@ class RangeList {
       this.listOfNumbers.splice(i, 1);
     }
     
-    console.log(this.listOfNumbers);
+    // console.log(this.listOfNumbers);
   }
 
   /**
@@ -202,6 +211,94 @@ class RangeList {
     }
     
     // Removal code goes here
+    // Get direction list for existing ranges, as we did for the add operation as well
+    var directionList = [];
+    for(var i=0; i<this.listOfNumbers.length; i++) {
+      directionList.push(this.getDirection(incomingLowerBound, incomingUpperBound, this.listOfNumbers[i]))
+    }
+
+    console.log(directionList);
+    // This means that inbound interval is either to the extreme left of existing intervals
+    // Or extreme right
+    // In both cases, there is no interval to delete. So we do nothing
+    if(directionList[0] == -1 || directionList[directionList.length - 1] == 1) {
+      return;
+    }
+
+    // Check case where incoming bounds force deletion of all existing bounds
+    // ie, if directionList if filled with 0s
+    var totalSum = directionList.reduce(function(acc, val){return acc + val;}, 0);
+    if(totalSum == 0) {
+      this.listOfNumbers = [];
+      return;
+    }
+
+    // Now to account for the case where the inbound interval to delete is not at the ends, but 
+    // somewhere in between, yet not fully captured
+    // Example [1,5] [10-21] -> remove ([7,9]) should do nothing since that interval doesn't exist
+    for(var i=0; i<directionList.length; i++) {
+      // This means that current direction is right, but next direction is left. This means there is a free
+      // interval in between. Nothing to delete!
+      // console.log(`var i=${i} and directionList value=${directionList[i]}`);
+      var currentLowerBound = this.listOfNumbers[i][0];
+      var currentUpperBound = this.listOfNumbers[i][1];
+
+      if(directionList[Math.min(i-1,0)] == 1 && directionList[i] == -1) {
+        return;
+      }
+
+      // Signifying total consumption overlap
+      if(directionList[i] == 2) {
+        // Have to split the interval
+        // [10-21] w/ [15-17]  ==> [10-15][17]
+        var range1 = [this.listOfNumbers[i][0], incomingLowerBound];
+        var range2 = [incomingUpperBound, this.listOfNumbers[i][1]];
+
+        this.listOfNumbers.splice(i, 1, range1, range2);
+
+      }
+
+      // Signifying partial overlap
+      if(directionList[i] == 0) {
+        // Find out where the partial overlap is happening  
+        console.log(`Partial overlap on index ${i}`);
+
+
+
+        if(incomingLowerBound < currentUpperBound && incomingUpperBound > currentUpperBound) {
+            console.log('case2')
+          // if(incomingUpperBound > currentUpperBound) {
+            this.listOfNumbers[i][1] = incomingLowerBound;
+            
+          // }
+          
+          // if(incomingUpperBound > currentLowerBound){
+          //   console.log("There");
+          //   this.listOfNumbers[i][0] = incomingUpperBound;
+          //   return;
+          // }
+        }
+
+        if(incomingUpperBound > currentLowerBound && incomingLowerBound < currentLowerBound) {
+            console.log('Case1')  
+          // if(incomingLowerBound < currentLowerBound) {
+            this.listOfNumbers[i][0] = incomingUpperBound;
+            
+          // }
+
+        }
+
+
+        
+      }
+    }
+
+    // Now to account for the cases where the inbound interval overlaps at least 1 existing interval
+    // AS an example, if the current RangeList is [[1,5], [10,21]] and the range to remove is [15,17]
+    // It should then split to [[1,5] [10,15], [15,21]]
+    // ANOTHER EXAMPLE:- What if incoming range was [8,13] ==> [[1,5][13,21]]
+    // This is where the fully consumed scenario takes place
+
 
     console.log(this.listOfNumbers);
   }
