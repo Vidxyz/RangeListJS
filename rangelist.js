@@ -115,9 +115,6 @@ class RangeList {
       directionList.push(this.getDirection(incomingLowerBound, incomingUpperBound, this.listOfNumbers[i]))
     }
     
-    // Print out the directionList
-    // console.log(directionList);
-
     // SPECIAL CASE for adding bounds at the BEGINNING of list
     if(directionList[0] == -2) {
       this.listOfNumbers.unshift(incomingRange);
@@ -209,8 +206,7 @@ class RangeList {
       }
       
     }
-    // console.log(`lowerint bound is ${lowerIntersectingBoundIndex} upperint bound is ${upperIntersectionBoundIndex}`)
-    
+
     // This means there was no '+1' in the directionList
     if(lowerIntersectingBoundIndex == -1) {
       if(upperIntersectionBoundIndex == -1) {
@@ -242,7 +238,6 @@ class RangeList {
     for(var i=upperIntersectionBoundIndex; i >= lowerIntersectingBoundIndex+1; i--) {
       this.listOfNumbers.splice(i, 1);
     }
-    // console.log(this.listOfNumbers);
   }
 
   /**
@@ -287,7 +282,6 @@ class RangeList {
       directionList.push(this.getDirection(incomingLowerBound, incomingUpperBound, this.listOfNumbers[i]))
     }
 
-    // console.log(directionList);
 
     /* TRIVIAL CASE:-
     ** This means that inbound interval is either to the extreme left of existing intervals
@@ -295,7 +289,6 @@ class RangeList {
     ** In both cases, there is no interval to delete. So we do nothing
     */
     if(directionList[0] == -2 || directionList[directionList.length - 1] == 2) {
-      // console.log("Extreme interval case")
       return;
     }
 
@@ -332,7 +325,6 @@ class RangeList {
     for(var i=0; i<directionList.length; i++) {
       // This checks for empty non-existent intervals that don't require any actual deletion
       if(directionList[Math.max(i-1,0)] == 2 && directionList[i] == -2) {
-        // console.log("Non existing interval case")
         return;
       }
 
