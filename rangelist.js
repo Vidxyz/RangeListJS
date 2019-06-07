@@ -174,6 +174,7 @@ class RangeList {
         if(incomingLowerBound < this.listOfNumbers[i][0] && incomingUpperBound > this.listOfNumbers[i][1]) {
           this.listOfNumbers[i][0] = incomingLowerBound;
           this.listOfNumbers[i][1] = incomingUpperBound;
+          return;
         }
       }
     }
