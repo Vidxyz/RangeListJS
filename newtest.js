@@ -64,6 +64,15 @@ rl.print();
 rl.remove([13,20]);
 rl.print();
 
+rl.add([6,9]);
+rl.print();
+
+rl.remove([6,9]);
+rl.print();
+
+rl.remove([25,29]);
+rl.print();
+
 // rl.add([-4, 10])
 // rl.print();
 // // Should display: [-4, 10) [11, 15) [17, 21)

@@ -283,7 +283,6 @@ class RangeList {
       directionList.push(this.getDirection(incomingLowerBound, incomingUpperBound, this.listOfNumbers[i]))
     }
 
-
     /* TRIVIAL CASE:-
     ** This means that inbound interval is either to the extreme left of existing intervals
     ** Or extreme right
@@ -307,15 +306,6 @@ class RangeList {
       this.listOfNumbers = [];
       return;
     }
-
-    // Now to account for the cases where the inbound interval overlaps at least 1 existing interval
-    // AS an example, if the current RangeList is [[1,5], [10,21]] and the range to remove is [15,17]
-    // It should then split to [[1,5] [10,15], [15,21]]
-    // ANOTHER EXAMPLE:- What if incoming range was [8,13] ==> [[1,5][13,21]]
-    // This is where the fully consumed scenario takes place
-    // Now to account for the case where the inbound interval to delete is not at the ends, but 
-    // somewhere in between, yet not fully captured
-    // Example [1,5] [10-21] -> remove ([7,9]) should do nothing since that interval doesn't exist
     
     /* These checks cover 2 cases
     *  Case 1: When incoming interval perfectly fits between two existing intervals WITHOUT overlap,
@@ -336,12 +326,18 @@ class RangeList {
       ** Making sure that this only takes into account overlapping intervals between intervals without overlap
       ** This splits the existing interval into 2 intervals
       */
-      if(directionList[i] == 0 && directionList[Math.max(0, i-1)] == 2 
-        && directionList[Math.min(i+1, directionList.length-1)] == -2) {
-        var range1 = [this.listOfNumbers[i][0], incomingLowerBound];
-        var range2 = [incomingUpperBound, this.listOfNumbers[i][1]];
-        this.listOfNumbers.splice(i, 1, range1, range2);
-        return;
+      if(directionList[i] == 0) {
+        // Accounting for the total overlap falling at the very beginning, very end, or somewhere in between
+        if((i == 0 && directionList[i+1] == -2) || 
+          (i == directionList.length-1 && directionList[0] == 2) || 
+          (directionList[Math.max(0, i-1)] == 2 && directionList[Math.min(i+1, directionList.length-1)] == -2)) {
+
+          var range1 = [this.listOfNumbers[i][0], incomingLowerBound];
+          var range2 = [incomingUpperBound, this.listOfNumbers[i][1]];
+          this.listOfNumbers.splice(i, 1, range1, range2);
+          return;
+        }
+        
       }
     }
 
