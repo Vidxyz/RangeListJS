@@ -1,0 +1,4 @@
+#!/bin/bash
+
+node rangelist.js
+node testing.js

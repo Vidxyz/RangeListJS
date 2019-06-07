@@ -5,6 +5,9 @@ console.log('Run starting')
 // Example run, with additional tests added on
 const rl = new test.rangeList();
 
+rl.remove([6,19]);
+rl.print();
+
 rl.add([1, 5]);
 rl.print();
 // Should display: [1, 5)
@@ -26,6 +29,9 @@ rl.print();
 // Should display: [1, 5) [10, 21)
 
 rl.add([23, 31]);
+rl.print();
+
+rl.add([9, 22]);
 rl.print();
 
 // rl.add([3, 8]);
@@ -54,28 +60,10 @@ rl.print();
 rl.remove([15,19]);
 rl.print();
 // Should display: [1, 8) [11, 15) [17, 21)
-rl.add([16,18]);
-rl.print();
 
 rl.remove([13,20]);
 rl.print();
 
-rl.remove([4,11]);
-rl.print();
-
-rl.remove([12,24]);
-rl.print();
-
-rl.remove([11,25]);
-rl.print();
-
-rl.add([8,22]);
-rl.print();
-
-rl.remove([0,21]);
-rl.print();
-
-// Perform more testing, seems good or else
 // rl.add([-4, 10])
 // rl.print();
 // // Should display: [-4, 10) [11, 15) [17, 21)
